@@ -1,0 +1,7 @@
+.DS_Store
+.idea
+*.gem
+coverage
+Gemfile.lock
+.yardoc
+doc
