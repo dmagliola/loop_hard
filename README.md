@@ -15,7 +15,7 @@ or a TERM signal is trapped).
 Possible use cases:
 
 - You have a background job that runs every 10 minutes and loops through a bunch of records until there are none left.
-    Use `Hardloop.loop(timeout: 9.5.minutes)` to generally prevent overlapping.
+    Use `LoopHard.loop(timeout: 9.5.minutes)` to generally prevent overlapping.
 - You don't have a time limit, but you're running a long job inside Sidekiq, and you want to exit gracefully when
     Sidekiq decides it's terminating (and before Heroku kills the process!).
     You shouldn't have long-running jobs on Sidekiq, but hey! it happens!
@@ -85,7 +85,9 @@ that should stop your loops.
 
 ## Version Compatibility and Continuous Integration
 
-Tested with [Travis](https://travis-ci.org/dmagliola/loop_hard) using Ruby 1.9.3, 2.0, 2.1.1, 2.1.5 and 2.2.2.
+Tested with [Travis](https://travis-ci.org/dmagliola/loop_hard) using Ruby 2.1.1, 2.1.5 and 2.2.2.
+
+LoopHard does work with Ruby 1.9, however, Sidekiq doesn't, so the Sidekiq trap won't work, but the rest will.
 
 To locally run tests do:
 
