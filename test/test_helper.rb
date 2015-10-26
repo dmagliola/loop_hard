@@ -33,3 +33,5 @@ include ActiveSupport::Testing::Assertions
 require "benchmark"
 
 require "loop_hard"
+
+LoopHard.logger = Logger.new("/dev/null")

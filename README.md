@@ -15,11 +15,15 @@ or a TERM signal is trapped).
 Possible use cases:
 
 - You have a background job that runs every 10 minutes and loops through a bunch of records until there are none left.
-    Use `Hardloop.loop_for(9.5.minutes)` to generally prevent overlapping.
+    Use `Hardloop.loop(timeout: 9.5.minutes)` to generally prevent overlapping.
 - You don't have a time limit, but you're running a long job inside Sidekiq, and you want to exit gracefully when
-    Sidekiq decides it's terminating. You shouldn't have long-running jobs on Sidekiq, but hey! it happens!
+    Sidekiq decides it's terminating (and before Heroku kills the process!).
+    You shouldn't have long-running jobs on Sidekiq, but hey! it happens!
 - Same case as before, but not inside Sidekiq. You're either handling signals yourself, or have some other
     library (in which case, please do a PR!)
+
+The assumption is, obviously, that your loop will run for a long time, but each iteration of your loop is going to be
+quick, otherwise, we can't really exit gracefully. But if we do exit gracefully, you know you're exiting in a known state.
 
 ## Download
 
@@ -47,10 +51,37 @@ end
 with
 
 ```
-LoopHard.loop_for(10.minutes) do
+LoopHard.loop(timeout: 10.minutes) do
   # do stuff until we break, or until 10 minutes go by, or until something tells us to stop
 end
 ```
+
+or, don't really specify a timeout if you're going to run forever, but just want to trap signals / Sidekiq shutdown
+gracefully.
+
+### Set your Logger
+
+LoopHard logs to LoopHard.logger every time it exits a loop, since normally these aren't normal conditions and you
+might want to be notified about it. By default, it logs to stdout.
+
+You probably want to set it to `LoopHard.logger = Rails.logger`, or whatever logger you're using in your app.
+
+
+
+### Trap your own signals
+
+If you want LoopHard to trap signals itself, you'll need to call `LoopHard::SignalTrap.trap_signals`
+
+By default it'll trap INT, TERM and USR1, but you can pass the signals you'd like trapped
+as a parameter to `trap_signals`.
+
+Only do this if you are sure nothing else in your app is trapping signals, because there can only be one signal handler
+per process. For example, if you are using Siekiq, **do not do this**, or you will get in the way of the Sidekiq shutdown
+process.
+
+If you are already trapping signals yourself, you can call `LoopHard::SignalTrap.signal_trapped` when you trap a signal
+that should stop your loops.
+
 
 ## Version Compatibility and Continuous Integration
 
