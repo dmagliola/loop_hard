@@ -6,6 +6,8 @@ module LoopHard
   #   Also, we can't trap the signals ourselves, since Sidekiq is trapping them, and you can only have one "trap"
   module SidekiqTrap
     class << self
+
+      # Returns false if Sidekiq has decided to stop taking new jobs. True otherwise.
       def continue?(options = nil)
         if defined?(Sidekiq) && Sidekiq.server? && defined?(Sidekiq::Fetcher) && Sidekiq::Fetcher.done?
           LoopHard.logger.info "Ending loop due to Sidekiq shutting down"
