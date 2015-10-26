@@ -12,14 +12,14 @@ class LoopTest < MiniTest::Test
   end
 
   should "loop for 100ms" do
-    i = 0
+    start = Time.now
+
     LoopHard.loop(timeout: 0.1) do
-      sleep 0.01
-      i += 1
+      # do nothing
     end
 
-    # Not an exact science, this thing...
-    assert_operator i, :>, 7
-    assert_operator i, :<, 12
+    time_elapsed = Time.now - start
+
+    assert_in_delta 0.1, time_elapsed, 0.02
   end
 end
